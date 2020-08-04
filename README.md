@@ -15,7 +15,8 @@ And, assuming you have AWS credentials, you'll get back:
     pineapple_prod_db_url=http://..
     pineapple_prod_db_password=secret-password
 
-Note, '/' and '.' are converted to '\_' for the environment variable names.
+Note, '/' and '.' are converted to '\_' for the environment variable names, and
+the leading '/' is removed.
 
 If using with Docker, the recommendation is to use this with the
 [env-file](https://docs.docker.com/compose/env-file/) option, something like:
