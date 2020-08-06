@@ -22,8 +22,9 @@ func main() {
 	client := ssm.New(sess, aws.NewConfig().WithRegion("eu-west-1"))
 
 	input := &ssm.GetParametersByPathInput{
-		Path:      prefix,
-		Recursive: aws.Bool(true),
+		Path:           prefix,
+		Recursive:      aws.Bool(true),
+		WithDecryption: aws.Bool(true),
 	}
 
 	output, err := client.GetParametersByPath(input)
