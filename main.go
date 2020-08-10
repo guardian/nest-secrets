@@ -32,25 +32,25 @@ func main() {
 		exit(fmt.Sprintf("Error: unable to retrieve from parameter store - %s.", err.Error()))
 	}
 
-	fmt.Print(asKV(output.Parameters))
+	fmt.Print(asKV(output.Parameters, *prefix))
 }
 
-func asKV(params []*ssm.Parameter) string {
+func asKV(params []*ssm.Parameter, prefix string) string {
 	builder := strings.Builder{}
 
 	for _, param := range params {
 		name := *param.Name
 		value := *param.Value
 
-		builder.WriteString(fmt.Sprintf("%s=%s\n", clean(name), value))
+		builder.WriteString(fmt.Sprintf("%s=%s\n", clean(name, prefix), value))
 	}
 
 	return builder.String()
 }
 
-func clean(s string) string {
-	r := strings.NewReplacer(".", "_", "/", "_")
-	return r.Replace(s[1:]) // strip leading '/'
+func clean(s, prefix string) string {
+	r := strings.NewReplacer(prefix+"/", "", ".", "_", "/", "_")
+	return r.Replace(s)
 }
 
 func exit(msg string) {
