@@ -42,14 +42,14 @@ func asKV(params []*ssm.Parameter, prefix string) string {
 		name := *param.Name
 		value := *param.Value
 
-		builder.WriteString(fmt.Sprintf("%s=%s\n", clean(name, prefix), value))
+		builder.WriteString(fmt.Sprintf("%s=\"%s\"\n", clean(name, prefix), value))
 	}
 
 	return builder.String()
 }
 
 func clean(s, prefix string) string {
-	r := strings.NewReplacer(prefix+"/", "", ".", "_", "/", "_")
+	r := strings.NewReplacer(prefix+"/", "", ".", "_", "/", "_", "-", "_")
 	return r.Replace(s)
 }
 
