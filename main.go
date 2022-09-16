@@ -15,7 +15,7 @@ func main() {
 	prefix := flag.String("prefix", "", "Parameter store prefix")
 	flag.Parse()
 	if *prefix == "" {
-		exit("Error: required flag 'prefix' missing.")
+		exitWithError("Error: required flag 'prefix' missing.")
 	}
 
 	sess := session.Must(session.NewSession())
@@ -29,7 +29,7 @@ func main() {
 
 	output, err := client.GetParametersByPath(input)
 	if err != nil {
-		exit(fmt.Sprintf("Error: unable to retrieve from parameter store - %s.", err.Error()))
+		exitWithError(fmt.Sprintf("Error: unable to retrieve from parameter store - %s.", err.Error()))
 	}
 
 	fmt.Print(asKV(output.Parameters, *prefix))
@@ -53,7 +53,7 @@ func clean(s, prefix string) string {
 	return r.Replace(s)
 }
 
-func exit(msg string) {
-	fmt.Println(msg)
+func exitWithError(msg string) {
+	fmt.Fprintf(os.Stderr, msg)
 	os.Exit(1)
 }
