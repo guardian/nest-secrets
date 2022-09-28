@@ -15,7 +15,7 @@ func main() {
 	prefix := flag.String("prefix", "", "Parameter store prefix")
 	flag.Parse()
 	if *prefix == "" {
-		exit("Error: required flag 'prefix' missing.")
+		exitWithError("Error: required flag 'prefix' missing.")
 	}
 
 	sess := session.Must(session.NewSession())
@@ -29,7 +29,7 @@ func main() {
 
 	output, err := client.GetParametersByPath(input)
 	if err != nil {
-		exit(fmt.Sprintf("Error: unable to retrieve from parameter store - %s.", err.Error()))
+		exitWithError(fmt.Sprintf("Error: unable to retrieve from parameter store - %s.", err.Error()))
 	}
 
 	fmt.Print(asKV(output.Parameters, *prefix))
@@ -42,18 +42,23 @@ func asKV(params []*ssm.Parameter, prefix string) string {
 		name := *param.Name
 		value := *param.Value
 
-		builder.WriteString(fmt.Sprintf("%s=%s\n", clean(name, prefix), value))
+		builder.WriteString(fmt.Sprintf("%s='%s'\n", cleanPrefix(name, prefix), cleanValue(value)))
 	}
 
 	return builder.String()
 }
 
-func clean(s, prefix string) string {
-	r := strings.NewReplacer(prefix+"/", "", ".", "_", "/", "_")
+func cleanValue(s string) string {
+	r := strings.NewReplacer("'", "\\'")
 	return r.Replace(s)
 }
 
-func exit(msg string) {
-	fmt.Println(msg)
+func cleanPrefix(s, prefix string) string {
+	r := strings.NewReplacer(prefix+"/", "", ".", "_", "/", "_", "-", "_")
+	return r.Replace(s)
+}
+
+func exitWithError(msg string) {
+	fmt.Fprintf(os.Stderr, msg)
 	os.Exit(1)
 }
