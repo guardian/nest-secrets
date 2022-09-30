@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
 mkdir -p bin
 
 # Targetting AMD (x86) EC2 
