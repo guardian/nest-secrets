@@ -2,6 +2,7 @@ name: ci
 
 env:
   BINARY_NAME: nest-secrets
+  GO_VERSION: 1.19
 
 on:
   pull_request:
@@ -16,15 +17,43 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v3
         with:
-          go-version: "1.17"
+          go-version: ${{ env.GO_VERSION }}
       - name: Run tests
         run: go test .
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ env.GO_VERSION }}
       - name: Build
-        run: |
-          GOOS=linux GOARCH=arm64 go build -o $BINARY_NAME-linux-arm64 main.go
-          GOOS=linux GOARCH=amd64 go build -o $BINARY_NAME-linux-amd64 main.go
+        run: ./build.sh
       - uses: actions/upload-artifact@v2
         with:
-          path: ${{ env.BINARY_NAME }}-*
+          path: bin/${{ env.BINARY_NAME }}-*
+  release:
+    name: Release
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch build
+        uses: actions/download-artifact@v3
+        with:
+          name: artifact
+          path: bin
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
