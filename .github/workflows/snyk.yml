@@ -1,4 +1,3 @@
-# Otherwise it will run snyk test
 name: Snyk
 
 on:
